@@ -10,6 +10,7 @@ public class PostgreSQLDriver: Fluent.Driver {
     public init(connectionInfo: String) {
         self.database = PostgreSQL(connectionInfo: connectionInfo)
             try! self.database.connect()
+            SQL.quote = "\""
         }
 
     public func fetchOne(table table: String, filters: [Filter]) -> [String: String]? {
