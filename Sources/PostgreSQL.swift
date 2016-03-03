@@ -4,6 +4,8 @@
     import CPostgreSQLMac
 #endif
 
+import Foundation
+
 public enum PostgresSQLError: ErrorType {
     case ConnectionException, IndexOutOfRangeException, NoSuchColumnException, SQLException
 }
@@ -57,6 +59,20 @@ public class PostgreSQL {
     statement.query = query
     return statement
   }
+
+    public func escapeIdentifier(identifier: String) -> String {
+        if let escaped = String.fromCString(PQescapeIdentifier(connection, identifier, identifier.lengthOfBytesUsingEncoding(NSUTF8StringEncoding))) {
+            return escaped
+        }
+        return ""
+    }
+
+    public func escapeLiteral(literal: String) -> String {
+        if let escaped = String.fromCString(PQescapeLiteral(connection, literal, literal.lengthOfBytesUsingEncoding(NSUTF8StringEncoding))) {
+            return escaped
+        }
+        return ""
+    }
 }
 
 public class PSQLStatement {

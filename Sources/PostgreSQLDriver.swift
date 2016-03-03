@@ -10,14 +10,14 @@ public class PostgreSQLDriver: Fluent.Driver {
     public init(connectionInfo: String) {
         self.database = PostgreSQL(connectionInfo: connectionInfo)
             try! self.database.connect()
-            SQL.quote = "\""
         }
 
     public func fetchOne(table table: String, filters: [Filter]) -> [String: String]? {
-        let sql = SQL(operation: .SELECT, table: table)
+        let sql = PostgreSQLDialect(driver: self, operation: .SELECT, table: table)
         sql.filters = filters
         sql.limit = 1
 
+print(sql.query)
         let statement = self.database.createStatement(withQuery: sql.query)
         do {
           if try statement.execute() {
@@ -30,7 +30,7 @@ public class PostgreSQLDriver: Fluent.Driver {
     }
 
     public func fetch(table table: String, filters: [Filter]) -> [[String: String]] {
-        let sql = SQL(operation: .SELECT, table: table)
+        let sql = PostgreSQLDialect(driver: self, operation: .SELECT, table: table)
         sql.filters = filters
         let statement = self.database.createStatement(withQuery: sql.query)
         do {
@@ -44,7 +44,7 @@ public class PostgreSQLDriver: Fluent.Driver {
     }
 
     public func delete(table table: String, filters: [Filter]) {
-        let sql = SQL(operation: .DELETE, table: table)
+        let sql = PostgreSQLDialect(driver: self, operation: .DELETE, table: table)
         sql.filters = filters
 
         let statement = self.database.createStatement(withQuery: sql.query)
@@ -54,7 +54,7 @@ public class PostgreSQLDriver: Fluent.Driver {
     }
 
     public func update(table table: String, filters: [Filter], data: [String: String]) {
-        let sql = SQL(operation: .UPDATE, table: table)
+        let sql = PostgreSQLDialect(driver: self, operation: .UPDATE, table: table)
         sql.filters = filters
         sql.data = data
 
@@ -66,7 +66,7 @@ public class PostgreSQLDriver: Fluent.Driver {
 
     public func insert(table table: String, items: [[String: String]]) {
       for item in items {
-        let sql = SQL(operation: .INSERT, table: table)
+        let sql = PostgreSQLDialect(driver: self, operation: .INSERT, table: table)
         sql.data = item
 
         let statement = self.database.createStatement(withQuery: sql.query)
@@ -90,6 +90,14 @@ public class PostgreSQLDriver: Fluent.Driver {
         print("count \(filters.count) filters on \(table)")
 
         return 0
+    }
+
+    public func escapeIdentifier(identifier: String) -> String {
+        return self.database.escapeIdentifier(identifier)
+    }
+
+    public func escapeLiteral(literal: String) -> String {
+        return self.database.escapeLiteral(literal)
     }
 
     // MARK: - Internal
