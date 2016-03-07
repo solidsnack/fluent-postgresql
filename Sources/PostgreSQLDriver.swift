@@ -17,7 +17,6 @@ public class PostgreSQLDriver: Fluent.Driver {
         sql.filters = filters
         sql.limit = 1
 
-print(sql.query)
         let statement = self.database.createStatement(withQuery: sql.query)
         do {
           if try statement.execute() {
@@ -98,6 +97,27 @@ print(sql.query)
 
     public func escapeLiteral(literal: String) -> String {
         return self.database.escapeLiteral(literal)
+    }
+
+    public func beginTransaction() {
+        let statement = self.database.createStatement(withQuery: "BEGIN")
+        do {
+          try statement.execute()
+        } catch { /* fail silently (for now) */ }
+    }
+
+    public func rollback() {
+        let statement = self.database.createStatement(withQuery: "ROLLBACK")
+        do {
+          try statement.execute()
+        } catch { /* fail silently (for now) */ }
+    }
+
+    public func commit() {
+        let statement = self.database.createStatement(withQuery: "COMMIT")
+        do {
+          try statement.execute()
+        } catch { /* fail silently (for now) */ }
     }
 
     // MARK: - Internal
