@@ -99,6 +99,20 @@ public class PostgreSQLDriver: Fluent.Driver {
         return self.database.escapeLiteral(literal)
     }
 
+    public func getLastId(table table: String) -> String? {
+        let statement = self.database.createStatement(withQuery: "SELECT LASTVAL() AS id")
+        do {
+          if try statement.execute() {
+            if let data = dataFromResult(statement.result) {
+              if let row = data.first {
+                return row["id"]
+              }
+            }
+          }
+        } catch { /* fail silently (for now) */ }
+        return nil
+    }
+
     public func beginTransaction() {
         let statement = self.database.createStatement(withQuery: "BEGIN")
         do {
