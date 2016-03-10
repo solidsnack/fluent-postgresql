@@ -42,6 +42,18 @@ public class PostgreSQLDriver: Fluent.Driver {
         return []
     }
 
+    public func query(query query: String) -> [[String: String]] {
+        let statement = self.database.createStatement(withQuery: query)
+        do {
+          if try statement.execute() {
+            if let data = dataFromResult(statement.result) {
+              return data
+            }
+          }
+        } catch { /* fail silently (for now) */ }
+        return []
+    }
+
     public func delete(table table: String, filters: [Filter]) {
         let sql = PostgreSQLDialect(driver: self, operation: .DELETE, table: table)
         sql.filters = filters
